@@ -29,7 +29,7 @@ public class CloudWatchReporter implements Runnable {
                 .withValue(count)
                 .withTimestamp(new Date());
         PutMetricDataRequest request = new PutMetricDataRequest()
-                .withNamespace("TEST")
+                .withNamespace("CUSTOM/TEST")
                 .withMetricData(metricData);
         cloundwatch.putMetricDataAsync(request);
     }
