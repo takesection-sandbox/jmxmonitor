@@ -14,14 +14,17 @@ object Monitor extends App {
   mbeans.asScala.foreach(mbeans ⇒ println(s"$mbeans"))
 
   val scheduler = Executors.newScheduledThreadPool(1)
-  val command: Runnable = () ⇒ {
-    val count = ManagementFactory.getThreadMXBean.getThreadCount
-    println(s"$count")
-  }
-  val handler = scheduler.scheduleAtFixedRate(command, 0, 1, TimeUnit.SECONDS)
+  val handler = scheduler.scheduleAtFixedRate(
+    new CloudWatchReporter("test"),
+    0,
+    1,
+    TimeUnit.MINUTES)
 
-  (1 to 60).foreach { _ ⇒
+  (1 to 6).foreach { _ ⇒
     new Thread(() ⇒ Thread.sleep(60000)).start()
-    Thread.sleep(1000)
+    Thread.sleep(30000)
   }
+
+  handler.cancel(false)
+  println("exit")
 }
