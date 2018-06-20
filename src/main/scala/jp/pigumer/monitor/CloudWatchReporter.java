@@ -12,7 +12,10 @@ import java.util.Date;
 
 public class CloudWatchReporter implements Runnable {
 
-    private AmazonCloudWatchAsync cloundwatch = AmazonCloudWatchAsyncClientBuilder.standard().build();
+    private AmazonCloudWatchAsync cloundwatch = AmazonCloudWatchAsyncClientBuilder
+            .standard()
+            .withRegion("ap-northeast-1")
+            .build();
     private String id;
 
     public CloudWatchReporter(String id) {

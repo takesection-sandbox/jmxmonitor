@@ -9,13 +9,18 @@ import java.util.concurrent.*;
 public class Application {
 
     public static void main(String[] args) {
+        String containerId = System.getenv("HOSTNAME");
+        if (containerId == null) {
+            containerId = "localhost";
+        }
+
         MBeanServer server = ManagementFactory.getPlatformMBeanServer();
         Set<ObjectInstance> mbeans = server.queryMBeans(null, null);
         mbeans.forEach(mbean -> System.out.println(mbean.toString()));
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         ScheduledFuture handler = scheduler.scheduleAtFixedRate(
-                new CloudWatchReporter("test"),
+                new CloudWatchReporter(containerId),
                 0,
                 1,
                 TimeUnit.MINUTES);
@@ -38,5 +43,6 @@ public class Application {
         }
         handler.cancel(false);
         System.out.println("exit");
+        System.exit(0);
     }
 }
