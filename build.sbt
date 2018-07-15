@@ -8,6 +8,7 @@ lazy val root = (project in file("."))
     name := "jmxclient",
     version := "0.0.1-SNAPSHOT",
     scalaVersion := "2.12.6",
+    javacOptions ++= Seq("-target", "1.8"),
     libraryDependencies ++= Seq(
       cloudwatch
     ),
