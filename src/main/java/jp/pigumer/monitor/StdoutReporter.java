@@ -1,21 +1,9 @@
 package jp.pigumer.monitor;
 
-import javax.management.MBeanServerConnection;
-import java.io.IOException;
-
-public class StdoutReporter extends Reporter implements Runnable {
-
-    public StdoutReporter(MBeanServerConnection server) {
-        super(server);
-    }
+public class StdoutReporter extends Reporter {
 
     @Override
-    public void run() {
-        try {
-            int count = getThreadCount();
-            System.out.println(count);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    protected void report(int count) {
+       System.out.println(count);
     }
 }

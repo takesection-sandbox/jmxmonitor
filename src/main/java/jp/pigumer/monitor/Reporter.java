@@ -4,17 +4,31 @@ import javax.management.MBeanServerConnection;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
+import java.util.stream.Stream;
 
-public class Reporter {
+public abstract class Reporter extends MBeanServerConnectionSupplier implements Runnable {
 
-    private final MBeanServerConnection server;
-
-    public Reporter(MBeanServerConnection server) {
-        this.server = server;
+    protected int getThreadCount(MBeanServerConnection server) {
+        try {
+            ThreadMXBean mx = ManagementFactory.getPlatformMXBean(server, ThreadMXBean.class);
+            return mx.getThreadCount();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    protected int getThreadCount() throws IOException {
-        ThreadMXBean mx = ManagementFactory.getPlatformMXBean(server, ThreadMXBean.class);
-        return mx.getThreadCount();
+    protected abstract void report(int count);
+
+    @Override
+    public void run() {
+        try {
+            Stream.generate(() -> get())
+                    .limit(1)
+                    .map(connection -> getThreadCount(connection))
+                    .forEach(count -> report(count));
+        } catch (Exception e) {
+            reset();
+            e.printStackTrace();
+        }
     }
 }
