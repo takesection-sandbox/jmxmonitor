@@ -7,10 +7,11 @@ import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
 
-import java.lang.management.ManagementFactory;
+import javax.management.MBeanServerConnection;
+import java.io.IOException;
 import java.util.Date;
 
-public class CloudWatchReporter implements Runnable {
+public class CloudWatchReporter extends Reporter {
 
     private AmazonCloudWatchAsync cloundwatch = AmazonCloudWatchAsyncClientBuilder
             .standard()
@@ -18,22 +19,26 @@ public class CloudWatchReporter implements Runnable {
             .build();
     private String id;
 
-    public CloudWatchReporter(String id) {
-        this.id = id;
+    public CloudWatchReporter(MBeanServerConnection server) {
+        super(server);
     }
 
     @Override
     public void run() {
-        Double count = (double) ManagementFactory.getThreadMXBean().getThreadCount();
-        MetricDatum metricData = new MetricDatum()
-                .withDimensions(new Dimension().withName("Id").withValue(id))
-                .withMetricName("thread_count")
-                .withUnit(StandardUnit.Count)
-                .withValue(count)
-                .withTimestamp(new Date());
-        PutMetricDataRequest request = new PutMetricDataRequest()
-                .withNamespace("CUSTOM/TEST")
-                .withMetricData(metricData);
-        cloundwatch.putMetricDataAsync(request);
+        try {
+            Double count = (double) getThreadCount();
+            MetricDatum metricData = new MetricDatum()
+                    .withDimensions(new Dimension().withName("Id").withValue(id))
+                    .withMetricName("thread_count")
+                    .withUnit(StandardUnit.Count)
+                    .withValue(count)
+                    .withTimestamp(new Date());
+            PutMetricDataRequest request = new PutMetricDataRequest()
+                    .withNamespace("CUSTOM/TEST")
+                    .withMetricData(metricData);
+            cloundwatch.putMetricDataAsync(request);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

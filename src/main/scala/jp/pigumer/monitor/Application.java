@@ -1,48 +1,35 @@
 package jp.pigumer.monitor;
 
-import javax.management.MBeanServer;
+import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
-import java.lang.management.ManagementFactory;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class Application {
 
-    public static void main(String[] args) {
-        String containerId = System.getenv("HOSTNAME");
-        if (containerId == null) {
-            containerId = "localhost";
-        }
+    public static void main(String[] args) throws Exception {
+        JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://127.0.0.1:9010/jmxrmi");
+        System.out.println(url);
+        JMXConnector connector = JMXConnectorFactory.connect(url);
+        MBeanServerConnection server = connector.getMBeanServerConnection();
 
-        MBeanServer server = ManagementFactory.getPlatformMBeanServer();
         Set<ObjectInstance> mbeans = server.queryMBeans(null, null);
         mbeans.forEach(mbean -> System.out.println(mbean.toString()));
 
+        Reporter reporter = new StdoutReporter(server);
+
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         ScheduledFuture handler = scheduler.scheduleAtFixedRate(
-                new CloudWatchReporter(containerId),
+                reporter,
                 0,
-                1,
-                TimeUnit.MINUTES);
+                5,
+                TimeUnit.SECONDS);
 
-        for (int i = 0; i < 6; i++) {
-            new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        Thread.sleep(60000);
-                    } catch (Exception e) {
-                        // ignore
-                    }
-                }
-            }).start();
-            try {
-                Thread.sleep(30000);
-            } catch (Exception e) {
-                // ignore
-            }
-        }
-        handler.cancel(false);
-        System.out.println("exit");
-        System.exit(0);
     }
 }
