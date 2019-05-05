@@ -13,4 +13,4 @@ spec:
         - containerPort: 8080
         - containerPort: 9010
     - name: reporter
-      image: takesection/testreporter:0.0.1-SNAPSHOT
+      image: testreporter:0.0.1-SNAPSHOT

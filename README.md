@@ -7,9 +7,35 @@ jmxclient
 $ sbt
 sbt> docker:stage
 sbt> docker:publishLocal
+sbt> exit
+$ docker tag jmxclient:0.0.1-SNAPSHOT testreporter:0.0.1-SNAPSHOT
 ```
 
-# Tomcat
+# Kubernetes
+
+## minikube
+
+```
+$ minikube start
+$ kubectl apply -f jmxmonitor.yaml
+$ kubectl logs jmxmonitor reporter
+```
+
+## describe
+
+```
+$ kubectl describe pods jmxmonitor
+```
+
+## delete
+
+```
+$ kubectl delete pod jmxmonitor
+```
+
+# Docker
+
+## Tomcat
 
 ```
 $ docker run \
@@ -20,7 +46,7 @@ $ docker run \
   tomcat:9-jre11
 ```
 
-# Run
+## Reporter
 
 ```
 $ export AWS_ACCESS_KEY_ID=<YOUR ACCESS KEY ID>
