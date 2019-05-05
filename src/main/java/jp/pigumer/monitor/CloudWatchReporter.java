@@ -7,33 +7,32 @@ import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
 
-import java.lang.management.ManagementFactory;
 import java.util.Date;
+import java.util.stream.Stream;
 
-public class CloudWatchReporter implements Runnable {
+public class CloudWatchReporter extends Reporter {
+
+    private final String id = "test";
+
+    private MBeanServerConnectionSupplier supplier = new MBeanServerConnectionSupplier();
 
     private AmazonCloudWatchAsync cloundwatch = AmazonCloudWatchAsyncClientBuilder
             .standard()
             .withRegion("ap-northeast-1")
             .build();
-    private String id;
-
-    public CloudWatchReporter(String id) {
-        this.id = id;
-    }
 
     @Override
-    public void run() {
-        Double count = (double) ManagementFactory.getThreadMXBean().getThreadCount();
+    protected void report(int count) {
         MetricDatum metricData = new MetricDatum()
                 .withDimensions(new Dimension().withName("Id").withValue(id))
                 .withMetricName("thread_count")
                 .withUnit(StandardUnit.Count)
-                .withValue(count)
+                .withValue((double) count)
                 .withTimestamp(new Date());
         PutMetricDataRequest request = new PutMetricDataRequest()
                 .withNamespace("CUSTOM/TEST")
                 .withMetricData(metricData);
         cloundwatch.putMetricDataAsync(request);
     }
+
 }
