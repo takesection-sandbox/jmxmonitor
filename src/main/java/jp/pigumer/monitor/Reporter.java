@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
-public abstract class Reporter implements Runnable {
+public class Reporter {
 
     private final MBeanServerConnection server;
 

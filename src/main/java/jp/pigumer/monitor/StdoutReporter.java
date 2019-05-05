@@ -3,7 +3,7 @@ package jp.pigumer.monitor;
 import javax.management.MBeanServerConnection;
 import java.io.IOException;
 
-public class StdoutReporter extends Reporter {
+public class StdoutReporter extends Reporter implements Runnable {
 
     public StdoutReporter(MBeanServerConnection server) {
         super(server);

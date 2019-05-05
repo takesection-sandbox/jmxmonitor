@@ -22,14 +22,14 @@ public class Application {
         Set<ObjectInstance> mbeans = server.queryMBeans(null, null);
         mbeans.forEach(mbean -> System.out.println(mbean.toString()));
 
-        Reporter reporter = new StdoutReporter(server);
+        Reporter reporter = new CloudWatchReporter(server);
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         ScheduledFuture handler = scheduler.scheduleAtFixedRate(
                 reporter,
                 0,
-                5,
-                TimeUnit.SECONDS);
+                1,
+                TimeUnit.MINUTES);
 
     }
 }

@@ -11,7 +11,7 @@ import javax.management.MBeanServerConnection;
 import java.io.IOException;
 import java.util.Date;
 
-public class CloudWatchReporter extends Reporter {
+public class CloudWatchReporter extends Reporter implements Runnable {
 
     private AmazonCloudWatchAsync cloundwatch = AmazonCloudWatchAsyncClientBuilder
             .standard()
